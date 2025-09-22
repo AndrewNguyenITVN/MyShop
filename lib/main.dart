@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui/products/products_manager.dart';
+import 'ui/products/products_overview_screen.dart';
 import 'ui/products/product_detail_screen.dart';
 
 void main() {
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       //     child: Text('Welcome to MyShop'),
       //   ),
       // ),
-      home: SafeArea(child: ProductDetailScreen(ProductsManager().items[0]),)
+      home: const SafeArea(child: ProductsOverviewScreen(),),
     );
   }
 }
