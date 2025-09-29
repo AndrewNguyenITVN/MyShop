@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 // import 'ui/products/products_manager.dart';
-// import 'ui/products/products_overview_screen.dart';
+import 'ui/products/products_overview_screen.dart';
 // import 'ui/products/product_detail_screen.dart';
 import 'ui/products/user_products_screen.dart';
+import 'ui/cart/cart_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,17 @@ class MyApp extends StatelessWidget {
         elevation: 4,
         shadowColor: colorScheme.shadow,
       ),
+      dialogTheme: DialogThemeData(
+        titleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        contentTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 20,
+        )
+      ),
     );
 
     return MaterialApp(
@@ -43,7 +55,8 @@ class MyApp extends StatelessWidget {
       //     child: Text('Welcome to MyShop'),
       //   ),
       // ),
-      home: const SafeArea(child: UserProductsScreen(),),
+      // home: const SafeArea(child: UserProductsScreen(),),
+      home: const SafeArea(child: CartScreen(),),
     );
   }
 }
