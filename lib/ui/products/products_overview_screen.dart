@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'products_grid.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/app_drawer.dart';
+import '../cart/cart_manager.dart';
 
 enum FillterOptions { favorites, all }
 
@@ -83,7 +84,10 @@ class ShoppingCartButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.shopping_cart),
+      icon: Badge.count(
+        count: CartManager().productCount,
+        child: const Icon(Icons.shopping_cart),
+      ),
       onPressed: onPressed,
     );
   }
