@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'user_product_list_tile.dart';
 import 'products_manager.dart';
+import '../shared/app_drawer.dart';
 
 class UserProductsScreen extends StatelessWidget {
   const UserProductsScreen({super.key});
@@ -19,6 +20,7 @@ class UserProductsScreen extends StatelessWidget {
           ),
         ],
       ),
+      drawer: const AppDrawer(),
       body: const UserProductList(),
     );
   }
