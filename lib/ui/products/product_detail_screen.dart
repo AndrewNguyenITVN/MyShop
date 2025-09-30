@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../models/product.dart';
+import '../cart/cart_screen.dart';
+import '../shared/page_route_builder.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen(
@@ -55,8 +57,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               color: Theme.of(context).colorScheme.secondary,
             ),
             onPressed: () {
-              // TODO: Triển khai chức năng wishlist
-              print('Wishlist button pressed');
+              print('Toggle a favorite product');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.of(context).push(
+                CustomPageRoute(
+                  child: const CartScreen(),
+                ),
+              );
             },
           ),
         ],
