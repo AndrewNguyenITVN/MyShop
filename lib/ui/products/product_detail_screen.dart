@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/product.dart';
 import '../cart/cart_screen.dart';
+import '../cart/cart_manager.dart';
 import '../shared/page_route_builder.dart';
+import 'package:go_router/go_router.dart';
+import '../products/products_overview_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen(
@@ -66,14 +70,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
+          // IconButton(
+          //   icon: const Icon(Icons.shopping_cart),
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //       CustomPageRoute(
+          //         child: const CartScreen(),
+          //       ),
+          //     );
+          //   },
+          // ),
+          ShoppingCartButton(
             onPressed: () {
-              Navigator.of(context).push(
-                CustomPageRoute(
-                  child: const CartScreen(),
-                ),
-              );
+              context.push('/cart');
             },
           ),
         ],
@@ -148,14 +157,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             label: const Text('Add to Cart'),
             onPressed: () {
               // TODO: Triển khai chức năng thêm vào giỏ hàng
+              final cart = context.read<CartManager>();
+              cart.addItem(widget.product, quantity: _quantity, size: _selectedSize, color: _selectedColor);
               print(
                   'Added to cart: ${widget.product.title}, Quantity: $_quantity, Size: $_selectedSize, Color: $_selectedColor');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Product added to cart!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   const SnackBar(
+              //     content: Text('Product added to cart!'),
+              //     duration: Duration(seconds: 2),
+              //   ),
+              // );
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: const Text('Item added to cart'),
+                    duration: const Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        cart.removeSingleItem(widget.product.id!);
+                      },
+                    ),
+                  ),
+                );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,

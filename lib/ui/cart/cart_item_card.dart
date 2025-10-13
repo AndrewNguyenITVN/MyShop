@@ -58,7 +58,7 @@ class ItemInfoCard extends StatelessWidget {
             child: Image.network(cartItem.imageUrl, fit: BoxFit.cover, height: 80, width: 80,),
           ),
           title: Text(cartItem.title),
-          subtitle: Text('Total: \$${cartItem.price * cartItem.quantity}'),
+          subtitle: Text('Total: \$${cartItem.price * cartItem.quantity}, ${cartItem.size?.isNotEmpty ?? false ? 'Size: ${cartItem.size}' : ''} ${cartItem.color?.isNotEmpty ?? false ? 'Color: ${cartItem.color}' : ''}'),
           trailing: Text(
             '${cartItem.quantity} x \$${cartItem.price}',
             style: Theme.of(context).textTheme.titleMedium,

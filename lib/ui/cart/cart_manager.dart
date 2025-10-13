@@ -4,13 +4,13 @@ import '../../models/product.dart';
 
 class CartManager with ChangeNotifier{
   final Map<String, CartItem> _item ={
-    'p1': CartItem(
-      id: 'c1',
-      title: 'Red Shirt',
-      quantity: 1,
-      price: 29.99,
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
+    // 'p1': CartItem(
+    //   id: 'c1',
+    //   title: 'Red Shirt',
+    //   quantity: 1,
+    //   price: 29.99,
+    //   imageUrl: 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+    // ),
   };
 
   int get productCount {
@@ -31,11 +31,50 @@ class CartManager with ChangeNotifier{
     return total;
   }
 
-  void addItem(Product product) {
+  //   void addItem(Product product) {
+  //   if (_item.containsKey(product.id)) {
+  //     _item.update(product.id!, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity + 1));
+  //   } else {
+  //     _item.putIfAbsent(product.id!, () => CartItem(
+  //       id: 'c${DateTime.now().toIso8601String()}', 
+  //       title: product.title, 
+  //       quantity: 1, 
+  //       price: product.price, 
+  //       imageUrl: product.imageUrl, 
+  //       size: product.sizes[0], 
+  //       color: product.colors[0]));
+  //   }
+  //   notifyListeners();
+  // }
+
+  void addItem(Product product, {int quantity = 1, String? size, String? color}) {
     if (_item.containsKey(product.id)) {
       _item.update(product.id!, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity + 1));
     } else {
-      _item.putIfAbsent(product.id!, () => CartItem(id: 'c${DateTime.now().toIso8601String()}', title: product.title, quantity: 1, price: product.price, imageUrl: product.imageUrl));
+      _item.putIfAbsent(product.id!, () => CartItem(
+        id: 'c${DateTime.now().toIso8601String()}', 
+        title: product.title, 
+        quantity: quantity, 
+        price: product.price, 
+        imageUrl: product.imageUrl, 
+        size: size ?? (product.sizes.isNotEmpty ? product.sizes[0] : null), 
+        color: color ?? (product.colors.isNotEmpty ? product.colors[0] : null)));
+    }
+    notifyListeners();
+  }
+
+    void removeSingleItem(String productId) {
+    if (!_item.containsKey(productId)) {
+      return;
+    }
+    if (_item[productId]!.quantity > 1) {
+      _item.update(
+        productId,
+        (existingCartItem) =>
+            existingCartItem.copyWith(quantity: existingCartItem.quantity - 1),
+      );
+    } else {
+      _item.remove(productId);
     }
     notifyListeners();
   }
