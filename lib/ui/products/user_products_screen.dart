@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'user_product_list_tile.dart';
 import 'products_manager.dart';
 import '../shared/app_drawer.dart';
+import 'package:go_router/go_router.dart';
 
 class UserProductsScreen extends StatelessWidget {
   const UserProductsScreen({super.key});
@@ -16,7 +17,7 @@ class UserProductsScreen extends StatelessWidget {
         actions: <Widget>[
           AddUserProductButton(
             onPressed: () {
-              print('Go to add product screen');
+              context.push('/my-products/new');
             },
           ),
         ],
