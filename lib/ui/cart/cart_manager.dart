@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import '../../models/cart_item.dart';
+import '../../models/product.dart';
 
-class CartManager {
+class CartManager with ChangeNotifier{
   final Map<String, CartItem> _item ={
     'p1': CartItem(
       id: 'c1',
@@ -29,4 +31,34 @@ class CartManager {
     return total;
   }
 
+  void addItem(Product product) {
+    if (_item.containsKey(product.id)) {
+      _item.update(product.id!, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity + 1));
+    } else {
+      _item.putIfAbsent(product.id!, () => CartItem(id: 'c${DateTime.now().toIso8601String()}', title: product.title, quantity: 1, price: product.price, imageUrl: product.imageUrl));
+    }
+    notifyListeners();
+  }
+  
+  void removeItem(String productId) {
+    if (!_item.containsKey(productId)) {
+      return;
+    }
+    if (_item[productId]!.quantity as num > 1) {
+      _item.update(productId, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity - 1));
+    } else {
+      _item.remove(productId);
+    }
+    notifyListeners();
+  }
+
+  void clearItem(String productId) {
+    _item.remove(productId);
+    notifyListeners();
+  }
+
+  void clearAllItem(){
+    _item.clear();
+    notifyListeners();
+  }
 }

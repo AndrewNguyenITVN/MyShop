@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/product.dart';
 import 'products_manager.dart';
-
+import '../cart/cart_manager.dart';
 class ProductGridTile extends StatelessWidget {
   const ProductGridTile(
     this.product, {
@@ -24,7 +24,23 @@ class ProductGridTile extends StatelessWidget {
             context.read<ProductsManager>().updateProduct(product.copyWith(isFavorite: !product.isFavorite));
           },
           onAddToCartPressed: () {
-            print('Add item to cart');
+            final cart = context.read<CartManager>();
+            cart.addItem(product);
+
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text('Product added to cart!'),
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () {
+                      cart.removeItem(product.id!);
+                    },
+                  ),
+                ),
+              );
           },
         ),
         child: GestureDetector(
