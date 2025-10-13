@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../order/order_manager.dart';
 import 'cart_manager.dart';
 import 'cart_item_card.dart';
 
@@ -16,9 +17,13 @@ class CartScreen extends StatelessWidget {
       ),
       body: Column(
         children: <Widget>[
-          CartSummary(cart: cart, onOrderPressed: () {
-            print('An order has been added');
-          }),
+          CartSummary(
+            cart: cart, 
+            onOrderNowPressed: cart.totalAmount <= 0 ? null : () {
+              context.read<OrdersManager>().addOrder(cart.products, cart.totalAmount);
+              cart.clearAllItem();
+            } 
+          ),
           const SizedBox(height: 10),
           Expanded(
             child: CartItemList(cart: cart),
@@ -43,9 +48,9 @@ class CartItemList extends StatelessWidget {
 
 
 class CartSummary extends StatelessWidget {
-  const CartSummary({super.key, required this.cart, this.onOrderPressed});
+  const CartSummary({super.key, required this.cart, this.onOrderNowPressed});
   final CartManager cart;
-  final void Function()? onOrderPressed;
+  final void Function()? onOrderNowPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +69,7 @@ class CartSummary extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.primary,
             ),
             TextButton(
-              onPressed: onOrderPressed,
+              onPressed: onOrderNowPressed,
               style: TextButton.styleFrom(
                 textStyle: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
