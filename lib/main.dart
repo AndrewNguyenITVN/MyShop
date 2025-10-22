@@ -5,8 +5,10 @@ import 'ui/cart/cart_manager.dart';
 import 'ui/order/order_manager.dart';
 import 'ui/products/edit_product_screen.dart';
 import 'ui/screens.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -72,22 +74,17 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const SplashScreen(),
         ),
         GoRoute(
-          path: '/products',
-          builder: (context, state) {
-            return FutureBuilder(
-              future: context.read<AuthManager>().tryAutoLogin(),
-              builder: (context, authSnapshot) => const SafeArea(child: SplashScreen(),),
-            );
-          }
-        ),
-        GoRoute(
           path: '/logout',
           builder: (context, state) {
             return FutureBuilder(
               future: context.read<AuthManager>().logout(),
-              builder: (context, authSnapshot) => const SafeArea(child: SplashScreen(),),
+              builder: (context, authSnapshot) => const SafeArea(child: SplashScreen()),
             );
           }
+        ),
+        GoRoute(
+          path: '/products',
+          builder: (context, state) => const ProductsOverviewScreen(),
         ),
         GoRoute(
           path: '/products/:productId',
