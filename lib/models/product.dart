@@ -1,3 +1,4 @@
+import 'dart:io';
 class Product {
   final String? id;
   final String title;
@@ -7,16 +8,17 @@ class Product {
   final bool isFavorite;
   final List<String> sizes;
   final List<String> colors;
-
+  final File? featuredImage;
   Product({
     this.id,
     required this.title,
     required this.description,
     required this.price,
-    required this.imageUrl,
+    this.imageUrl = '',
     this.isFavorite = false,
     this.sizes = const [],
     this.colors = const [],
+    this.featuredImage,
   });
 
   Product copyWith({
@@ -28,6 +30,7 @@ class Product {
     bool? isFavorite,
     List<String>? sizes,
     List<String>? colors,
+    File? featuredImage,
   }) {
     return Product(
       id: id ?? this.id,
@@ -38,6 +41,31 @@ class Product {
       isFavorite: isFavorite ?? this.isFavorite,
       sizes: sizes ?? this.sizes,
       colors: colors ?? this.colors,
+      featuredImage: featuredImage ?? this.featuredImage,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'price': price,
+      'isFavorite': isFavorite,
+    };
+  }
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      price: json['price'],
+      imageUrl: json['imageUrl'],
+      isFavorite: json['isFavorite'],
+    );
+  }
+
+  bool hasFeaturedImage() {
+    return featuredImage != null || imageUrl.isNotEmpty;
   }
 }
