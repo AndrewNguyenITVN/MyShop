@@ -44,13 +44,50 @@ class MyApp extends StatelessWidget {
       ),
     );
 
+    final authManager = AuthManager();
+
     final router = GoRouter(
       debugLogDiagnostics: true,
-      initialLocation: '/products',
+      
+      initialLocation: '/auto-login',
+      refreshListenable: authManager,
+      redirect: (context, state) {
+        final authManager = context.read<AuthManager>();
+        final isAtAuthScreen = state.matchedLocation == '/auth';
+        if (!authManager.isAuth && !isAtAuthScreen) {
+          return '/auth';
+        }
+        if (authManager.isAuth && isAtAuthScreen) {
+          return '/products';
+        }
+        return null;
+      },
       routes: [
         GoRoute(
+          path: '/auth',
+          builder: (context, state) => const SafeArea(child: AuthScreen(),),
+        ),
+        GoRoute(
+          path: '/auto-login',
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
           path: '/products',
-          builder: (context, state) => const ProductsOverviewScreen(),
+          builder: (context, state) {
+            return FutureBuilder(
+              future: context.read<AuthManager>().tryAutoLogin(),
+              builder: (context, authSnapshot) => const SafeArea(child: SplashScreen(),),
+            );
+          }
+        ),
+        GoRoute(
+          path: '/logout',
+          builder: (context, state) {
+            return FutureBuilder(
+              future: context.read<AuthManager>().logout(),
+              builder: (context, authSnapshot) => const SafeArea(child: SplashScreen(),),
+            );
+          }
         ),
         GoRoute(
           path: '/products/:productId',
@@ -89,6 +126,7 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: authManager),
         ChangeNotifierProvider(create: (_) => ProductsManager()),
         ChangeNotifierProvider(create: (_) => CartManager()),
         ChangeNotifierProvider(create: (_) => OrdersManager()),

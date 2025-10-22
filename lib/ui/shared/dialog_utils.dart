@@ -30,6 +30,23 @@ Future<bool?> showConfirmDialog(BuildContext context, String message) {
   );
 }
 
+Future<void> showErrorDialog(BuildContext context, String message) {
+  return showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('An error occurred!'),
+      icon: const Icon(Icons.error),
+      content: Text(message),
+      actions: <Widget>[
+        ActionButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
 class ActionButton extends StatelessWidget {
   const ActionButton({
     super.key,
