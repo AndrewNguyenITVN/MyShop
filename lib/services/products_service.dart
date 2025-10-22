@@ -6,6 +6,9 @@ import 'pocketbase_client.dart';
 class ProductsService {
   String _getFeaturedImageUrl(PocketBase pb, RecordModel productModel) {
     final featuredImageName = productModel.getStringValue('featuredImage');
+    if (featuredImageName.isEmpty) {
+      return ''; 
+    }
     return pb.files.getUrl(productModel, featuredImageName).toString();
   }
 
@@ -23,6 +26,23 @@ class ProductsService {
       return product.copyWith(id: productModel.id, imageUrl: _getFeaturedImageUrl(pb, productModel));
     } catch (error) {
       return null;
+    }
+  }
+
+  Future<List<Product>> fetchProducts({bool filterByUser = false}) async {
+    final List<Product> products = [];
+    try {
+      final pb = await getPocketbaseInstance();
+      final userId = pb.authStore.record!.id;
+
+      final productModels = await pb.collection('products').getFullList(
+        filter: filterByUser ? "userId = '$userId'" : null,);
+      for (final productModel in productModels) {
+        products.add(Product.fromJson(productModel.toJson()..addAll({'imageUrl': _getFeaturedImageUrl(pb, productModel)})));
+      }
+      return products;
+    } catch (error) {
+      return products;
     }
   }
 }

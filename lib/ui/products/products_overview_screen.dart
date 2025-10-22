@@ -5,6 +5,7 @@ import 'products_grid.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/app_drawer.dart';
 import '../cart/cart_manager.dart';
+import 'products_manager.dart';
 
 enum FillterOptions { favorites, all }
 
@@ -18,6 +19,13 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _currentFilter = FillterOptions.all;
+  late Future<void> _fetchProducts;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts = context.read<ProductsManager>().fetchProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +49,16 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: const AppDrawer(),
-      body: ProductsGrid(
-        _currentFilter == FillterOptions.favorites,
+      body: FutureBuilder(
+        future: _fetchProducts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ProductsGrid(
+              _currentFilter == FillterOptions.favorites,
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }

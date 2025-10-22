@@ -59,7 +59,7 @@ class Product {
       id: json['id'],
       title: json['title'],
       description: json['description'],
-      price: json['price'],
+      price: (json['price'] as num).toDouble(),
       imageUrl: json['imageUrl'],
       isFavorite: json['isFavorite'],
     );
