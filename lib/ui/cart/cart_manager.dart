@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
 import '../../models/cart_item.dart';
 import '../../models/product.dart';
+import '../../services/cart_service.dart';
 
-class CartManager with ChangeNotifier{
-  final Map<String, CartItem> _item ={
-    // 'p1': CartItem(
-    //   id: 'c1',
-    //   title: 'Red Shirt',
-    //   quantity: 1,
-    //   price: 29.99,
-    //   imageUrl: 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    // ),
-  };
+class CartManager with ChangeNotifier {
+  final CartService _cartService = CartService();
+  String? _userId;
+  
+  final Map<String, CartItem> _item = {};
+
+  CartManager();
 
   int get productCount {
     return _item.length;
@@ -31,73 +29,83 @@ class CartManager with ChangeNotifier{
     return total;
   }
 
-  //   void addItem(Product product) {
-  //   if (_item.containsKey(product.id)) {
-  //     _item.update(product.id!, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity + 1));
-  //   } else {
-  //     _item.putIfAbsent(product.id!, () => CartItem(
-  //       id: 'c${DateTime.now().toIso8601String()}', 
-  //       title: product.title, 
-  //       quantity: 1, 
-  //       price: product.price, 
-  //       imageUrl: product.imageUrl, 
-  //       size: product.sizes[0], 
-  //       color: product.colors[0]));
-  //   }
-  //   notifyListeners();
-  // }
+  // Load cart from database for specific user
+  Future<void> loadCartFromDatabase(String userId) async {
+    _userId = userId;
+    final items = await _cartService.getCartItems(userId);
+    _item.clear();
+    for (var item in items) {
+      _item[item.productId] = item;
+    }
+    notifyListeners();
+  }
 
-  void addItem(Product product, {int quantity = 1, String? size, String? color}) {
+  void addItem(Product product, {int quantity = 1, String? size, String? color}) async {
+    if (_userId == null) return;
+
+    CartItem cartItem;
     if (_item.containsKey(product.id)) {
-      _item.update(product.id!, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity + 1));
+      cartItem = _item[product.id]!.copyWith(quantity: _item[product.id]!.quantity + 1);
+      _item[product.id!] = cartItem;
     } else {
-      _item.putIfAbsent(product.id!, () => CartItem(
-        id: 'c${DateTime.now().toIso8601String()}', 
+      cartItem = CartItem(
+        id: 'c${DateTime.now().toIso8601String()}',
+        productId: product.id!,
         title: product.title, 
         quantity: quantity, 
         price: product.price, 
         imageUrl: product.imageUrl, 
         size: size ?? (product.sizes.isNotEmpty ? product.sizes[0] : null), 
-        color: color ?? (product.colors.isNotEmpty ? product.colors[0] : null)));
+        color: color ?? (product.colors.isNotEmpty ? product.colors[0] : null));
+      _item[product.id!] = cartItem;
     }
+    
+    // Sync with database
+    await _cartService.insertCartItem(_userId!, cartItem);
     notifyListeners();
   }
 
-    void removeSingleItem(String productId) {
-    if (!_item.containsKey(productId)) {
+  void removeSingleItem(String productId) async {
+    if (_userId == null || !_item.containsKey(productId)) {
       return;
     }
     if (_item[productId]!.quantity > 1) {
-      _item.update(
-        productId,
-        (existingCartItem) =>
-            existingCartItem.copyWith(quantity: existingCartItem.quantity - 1),
-      );
+      final updatedItem = _item[productId]!.copyWith(quantity: _item[productId]!.quantity - 1);
+      _item[productId] = updatedItem;
+      await _cartService.updateCartItem(_userId!, updatedItem);
     } else {
       _item.remove(productId);
+      await _cartService.deleteCartItem(_userId!, productId);
     }
     notifyListeners();
   }
   
-  void removeItem(String productId) {
-    if (!_item.containsKey(productId)) {
+  void removeItem(String productId) async {
+    if (_userId == null || !_item.containsKey(productId)) {
       return;
     }
     if (_item[productId]!.quantity as num > 1) {
-      _item.update(productId, (existingCartItem) => existingCartItem.copyWith(quantity: existingCartItem.quantity - 1));
+      final updatedItem = _item[productId]!.copyWith(quantity: _item[productId]!.quantity - 1);
+      _item[productId] = updatedItem;
+      await _cartService.updateCartItem(_userId!, updatedItem);
     } else {
       _item.remove(productId);
+      await _cartService.deleteCartItem(_userId!, productId);
     }
     notifyListeners();
   }
 
-  void clearItem(String productId) {
+  void clearItem(String productId) async {
+    if (_userId == null) return;
     _item.remove(productId);
+    await _cartService.deleteCartItem(_userId!, productId);
     notifyListeners();
   }
 
-  void clearAllItem(){
+  void clearAllItem() async {
+    if (_userId == null) return;
     _item.clear();
+    await _cartService.clearCart(_userId!);
     notifyListeners();
   }
 }

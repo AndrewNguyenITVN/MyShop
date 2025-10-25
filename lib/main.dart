@@ -47,6 +47,16 @@ class MyApp extends StatelessWidget {
     );
 
     final authManager = AuthManager();
+    final cartManager = CartManager();
+    final ordersManager = OrdersManager();
+
+    // Listen to auth changes and load user-specific data
+    authManager.addListener(() {
+      if (authManager.isAuth && authManager.user != null) {
+        cartManager.loadCartFromDatabase(authManager.user!.id);
+        ordersManager.fetchAndSetOrders();
+      }
+    });
 
     final router = GoRouter(
       debugLogDiagnostics: true,
@@ -125,8 +135,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: authManager),
         ChangeNotifierProvider(create: (_) => ProductsManager()),
-        ChangeNotifierProvider(create: (_) => CartManager()),
-        ChangeNotifierProvider(create: (_) => OrdersManager()),
+        ChangeNotifierProvider.value(value: cartManager),
+        ChangeNotifierProvider.value(value: ordersManager),
       ],
       child: MaterialApp.router(
         title: 'MyShop',
