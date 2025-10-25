@@ -1,24 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../../models/order_item.dart';
 import '../../models/cart_item.dart';
+import '../../services/orders_service.dart';
 
-class OrdersManager with ChangeNotifier{
-  final List<OrderItem> _orders = [
-    OrderItem(
-      id: 'o1',
-      amount: 59.98,
-      products: [
-        CartItem(
-          id: 'c1',
-          title: 'Red Shirt',
-          price: 29.99,
-          quantity: 2,
-          imageUrl: 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-        ),
-      ],
-      dateTime: DateTime.now(),
-    ),
-  ];
+class OrdersManager with ChangeNotifier {
+  final OrdersService _ordersService = OrdersService();
+  final List<OrderItem> _orders = [];
+
+  OrdersManager();
 
   int get orderCount {
     return _orders.length;
@@ -28,13 +17,26 @@ class OrdersManager with ChangeNotifier{
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) async {
-    _orders.insert(0, OrderItem(
-      id: 'o${DateTime.now().toIso8601String()}',
-      amount: total,
-      products: cartProducts,
-      dateTime: DateTime.now(),
-    ));
-    notifyListeners();
+  // Fetch orders from PocketBase
+  Future<void> fetchAndSetOrders() async {
+    try {
+      final orders = await _ordersService.fetchOrders();
+      _orders.clear();
+      _orders.addAll(orders);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  // Add order and save to PocketBase
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    try {
+      final newOrder = await _ordersService.createOrder(total, cartProducts);
+      _orders.insert(0, newOrder);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
   }
 }

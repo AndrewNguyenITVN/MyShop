@@ -30,4 +30,25 @@ class OrderItem {
       dateTime: dateTime ?? this.dateTime,
     );
   }
+
+  // PocketBase serialization
+  Map<String, dynamic> toJson() {
+    return {
+      'amount': amount,
+      'products': products.map((item) => item.toMap()).toList(),
+      'dateTime': dateTime.toIso8601String(),
+    };
+  }
+
+  // PocketBase deserialization
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      id: json['id'] as String?,
+      amount: (json['amount'] as num).toDouble(),
+      products: (json['products'] as List<dynamic>)
+          .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
+          .toList(),
+      dateTime: DateTime.parse(json['dateTime'] as String),
+    );
+  }
 }
