@@ -47,7 +47,7 @@ class ProductsManager with ChangeNotifier{
   
   Future<void> deleteProduct(String id) async {
     final index = _items.indexWhere((item) => item.id == id);
-    if (index >= 0 && !await _productsService.deleteProduct(id)) {
+    if (index >= 0 && await _productsService.deleteProduct(id)) {
       _items.removeAt(index);
       notifyListeners();
     }
