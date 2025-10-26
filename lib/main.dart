@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'ui/cart/cart_manager.dart';
-import 'ui/order/order_manager.dart';
 import 'ui/products/edit_product_screen.dart';
 import 'ui/screens.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -47,16 +45,6 @@ class MyApp extends StatelessWidget {
     );
 
     final authManager = AuthManager();
-    final cartManager = CartManager();
-    final ordersManager = OrdersManager();
-
-    // Listen to auth changes and load user-specific data
-    authManager.addListener(() {
-      if (authManager.isAuth && authManager.user != null) {
-        cartManager.loadCartFromDatabase(authManager.user!.id);
-        ordersManager.fetchAndSetOrders();
-      }
-    });
 
     final router = GoRouter(
       debugLogDiagnostics: true,
@@ -135,8 +123,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: authManager),
         ChangeNotifierProvider(create: (_) => ProductsManager()),
-        ChangeNotifierProvider.value(value: cartManager),
-        ChangeNotifierProvider.value(value: ordersManager),
+        ChangeNotifierProvider(create: (_) => CartManager()),
+        ChangeNotifierProvider(create: (_) => OrdersManager()),
       ],
       child: MaterialApp.router(
         title: 'MyShop',

@@ -5,8 +5,21 @@ import '../order/order_manager.dart';
 import 'cart_manager.dart';
 import 'cart_item_card.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  late Future<void> _fetchCart;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCart = context.read<CartManager>().fetchCart();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,20 +28,28 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Your Cart'),
       ),
-      body: Column(
-        children: <Widget>[
-          CartSummary(
-            cart: cart, 
-            onOrderNowPressed: cart.totalAmount <= 0 ? null : () {
-              context.read<OrdersManager>().addOrder(cart.products, cart.totalAmount);
-              cart.clearAllItem();
-            } 
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: CartItemList(cart: cart),
-          )
-        ]
+      body: FutureBuilder(
+        future: _fetchCart,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Column(
+            children: <Widget>[
+              CartSummary(
+                cart: cart, 
+                onOrderNowPressed: cart.totalAmount <= 0 ? null : () {
+                  context.read<OrdersManager>().addOrder(cart.products, cart.totalAmount);
+                  cart.clearAllItem();
+                } 
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: CartItemList(cart: cart),
+              )
+            ]
+          );
+        },
       )
     );
   }

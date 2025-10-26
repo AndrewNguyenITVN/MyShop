@@ -35,7 +35,6 @@ class OrdersService {
     }
   }
 
-  // Fetch orders for the current authenticated user
   Future<List<OrderItem>> fetchOrders() async {
     final pb = await getPocketbaseInstance();
     
@@ -43,10 +42,8 @@ class OrdersService {
       throw Exception('User not authenticated');
     }
 
-    final userId = pb.authStore.record!.id;
     try {
-      // API rules already filter by userId (@request.auth.id = userId)
-      // So we don't need to add filter here
+
       final records = await pb.collection('orders').getFullList(
         sort: '-created',
       );      

@@ -18,7 +18,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchOrders = context.read<OrdersManager>().fetchAndSetOrders();
+    _fetchOrders = context.read<OrdersManager>().fetchUserOrders();
   }
 
   @override

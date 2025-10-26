@@ -5,7 +5,7 @@ import '../../services/orders_service.dart';
 
 class OrdersManager with ChangeNotifier {
   final OrdersService _ordersService = OrdersService();
-  final List<OrderItem> _orders = [];
+  List<OrderItem> _orders = [];
 
   OrdersManager();
 
@@ -17,19 +17,17 @@ class OrdersManager with ChangeNotifier {
     return [..._orders];
   }
 
-  // Fetch orders from PocketBase
-  Future<void> fetchAndSetOrders() async {
+  Future<void> fetchUserOrders() async {
     try {
-      final orders = await _ordersService.fetchOrders();
-      _orders.clear();
-      _orders.addAll(orders);
+      _orders = await _ordersService.fetchOrders();
       notifyListeners();
     } catch (error) {
+      print('Error fetching orders: $error');
       rethrow;
     }
   }
 
-  // Add order and save to PocketBase
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     try {
       final newOrder = await _ordersService.createOrder(total, cartProducts);
